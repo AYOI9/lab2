@@ -67,10 +67,6 @@ public class Payment
         Console.WriteLine($"К выплате: {NetAmount:C}");
     }
 }
-class Program
-{
-    static void Main()
-    {
         // Создаем объект Payment
         Payment employee = new Payment(
             "Иванов Иван Иванович",
@@ -82,5 +78,3 @@ class Program
 
         // Выводим информацию о зарплате
         employee.PrintPaymentInfo();
-    }
-}
