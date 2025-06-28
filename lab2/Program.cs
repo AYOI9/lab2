@@ -1,22 +1,22 @@
-﻿using System;
+using System;
 
 public class Payment
 {
     // Поля класса
-    public string FullName;       // ФИО
-    public decimal Salary;        // Оклад
-    public int HireYear;          // Год поступления на работу
-    public decimal BonusPercent;  // Процент надбавки
-    public int WorkedDays;        // Отработанные дни
-    public int WorkingDays;       // Рабочие дни в месяце
+    public string FullName;
+    public decimal Salary;
+    public int HireYear;
+    public decimal BonusPercent;
+    public int WorkedDays;
+    public int WorkingDays;
 
-    // Вычисляемые свойства
+    // Свойства
     public decimal AccruedAmount => CalculateAccrued();
     public decimal WithheldAmount => CalculateWithheld();
     public decimal NetAmount => CalculateNet();
     public int Experience => CalculateExperience();
 
-    // Конструктор
+    // Конструкторы (перегрузка)
     public Payment(string fullName, decimal salary, int hireYear,
                   decimal bonusPercent, int workedDays, int workingDays)
     {
@@ -28,7 +28,12 @@ public class Payment
         WorkingDays = workingDays;
     }
 
-    // Метод вычисления начисленной суммы
+    // Перегрузка конструктора - без процента надбавки
+    public Payment(string fullName, decimal salary, int hireYear,
+                  int workedDays, int workingDays)
+        : this(fullName, salary, hireYear, 0m, workedDays, workingDays) {}
+
+    // Методы расчета
     private decimal CalculateAccrued()
     {
         decimal baseAmount = Salary * WorkedDays / WorkingDays;
@@ -36,28 +41,17 @@ public class Payment
         return baseAmount + bonus;
     }
 
-    // Метод вычисления удержанной суммы
     private decimal CalculateWithheld()
     {
-        decimal pensionFund = AccruedAmount * 0.01m; // 1% в пенсионный фонд
-        decimal incomeTax = (AccruedAmount - pensionFund) * 0.13m; // 13% подоходный
+        decimal pensionFund = AccruedAmount * 0.01m;
+        decimal incomeTax = (AccruedAmount - pensionFund) * 0.13m;
         return pensionFund + incomeTax;
     }
 
-    // Метод вычисления суммы "на руки"
-    private decimal CalculateNet()
-    {
-        return AccruedAmount - WithheldAmount;
-    }
+    private decimal CalculateNet() => AccruedAmount - WithheldAmount;
+    private int CalculateExperience() => DateTime.Now.Year - HireYear;
 
-    // Метод вычисления стажа
-    private int CalculateExperience()
-    {
-        int currentYear = DateTime.Now.Year;
-        return currentYear - HireYear;
-    }
-
-    // Метод для вывода информации
+    // Перегрузка метода вывода инфы
     public void PrintPaymentInfo()
     {
         Console.WriteLine($"ФИО: {FullName}");
@@ -66,15 +60,31 @@ public class Payment
         Console.WriteLine($"Удержано: {WithheldAmount:C}");
         Console.WriteLine($"К выплате: {NetAmount:C}");
     }
-}
-        // Создаем объект Payment
-        Payment employee = new Payment(
-            "Иванов Иван Иванович",
-            50000m,
-            2015,
-            15m,
-            20,
-            22);
 
-        // Выводим информацию о зарплате
-        employee.PrintPaymentInfo();
+    // Перегрузка метода - краткая версия вывода
+    public void PrintPaymentInfo(bool shortVersion)
+    {
+        if (shortVersion)
+        {
+            Console.WriteLine($"{FullName}: {NetAmount:C} (на руки)");
+        }
+        else
+        {
+            PrintPaymentInfo(); // Вызов полной версии
+        }
+    }
+}
+
+class Program
+{
+    static void Main()
+    {
+        // Использование перегруженных конструкторов
+        Payment emp1 = new Payment("Иванов И.И.", 50000m, 2015, 15m, 20, 22);
+        Payment emp2 = new Payment("Петров П.П.", 60000m, 2018, 20, 22);
+
+        // Использование перегруженных методов
+        emp1.PrintPaymentInfo(); // Полная версия
+        emp2.PrintPaymentInfo(true); // Краткая версия
+    }
+}
